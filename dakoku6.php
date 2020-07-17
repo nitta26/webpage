@@ -30,10 +30,8 @@
 <canvas id="myPieChart"></canvas>
 
 <?php
- 	echo "hello php";
 	// mysql connection
 	$link = mysqli_connect('localhost', 'root', 'nitta', 'mydb');
-		echo "mysql";
 	if (mysqli_connect_errno()) {
 		die("データベースに接続できません:" . mysqli_connect_error() . "\n");
 	} else {
@@ -41,7 +39,6 @@
 	}
 
 	if (isset($_POST['submit'])) {
-  	echo "<p>".$_POST['status']."</p>";
     if (isset($_POST['memo']) && $_POST['memo'] != '') {
      	$x = htmlspecialchars($_POST['memo']);
       $status = $_POST['status'];
@@ -58,7 +55,8 @@
 	$query = "SELECT * from timestamp WHERE date LIKE CONCAT(CURDATE(), '%') ORDER BY date DESC;";
 	$data = array();
 	$color= array();
-	$color_list=array("#58A27C","#3C00FF","#FAFF67");
+	$color_list=array("#58A27C","#3C00FF","#FAFF67","#BB5179");
+	$memo = array();
 	if($result = mysqli_query($link, $query)) {
 		echo "<p>SELECT に成功しました</p>";
     $i=0;
@@ -79,6 +77,7 @@
 				$m = $interval->i;
 				$hm = 60*$h+$m;
 				array_unshift($data, $hm);
+				array_unshift($memo, $row['memo']);
 				$olddate = clone $date;
 				if($row['status']==1){
 					echo "work";
@@ -98,6 +97,8 @@
 		$m = $olddate->format('i');
 		$hm = 60*$h+$m;
 		array_unshift($data, $hm);
+		array_unshift($color, $color_list[3]);
+		array_unshift($memo, "sleep");
 	}
   mysqli_close($link);
   $hoge = 10;
@@ -105,18 +106,20 @@
   $varjssample = json_encode($sample);
 	$jsdata = json_encode($data);
 	$jscolor= json_encode($color);
+	$jsmemo= json_encode($memo);
 ?>
 
 <script>
 	var cdata = JSON.parse('<?php echo $jsdata; ?>');
-	document.write(cdata);
 	var color = JSON.parse('<?php echo $jscolor; ?>');
+	var memo = JSON.parse('<?php echo $jsmemo; ?>');
 
   var ctx = document.getElementById("myPieChart");
   var myPieChart = new Chart(ctx, {
     type: 'pie',
     data: {
       //labels: ["A型", "O型", "B型", "AB型"],
+			labels: memo,
       datasets: [{
           //backgroundColor: [
           //    "#BB5179",
