@@ -40,7 +40,7 @@
 	}	
 ?>
 
-<script src="//maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCGLc_VSFqDmSyR0DWVcdq5aAz-sL_XCSM"></script>
+<script src="//maps.googleapis.com/maps/api/js?libraries=places&key={key}"></script>
 <script src="utils.js"></script>
 <script>
 var mapDiv = document.getElementById( "map-canvas" ) ;
