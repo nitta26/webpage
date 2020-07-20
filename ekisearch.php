@@ -32,39 +32,39 @@
 		echo "<p>search start</p>";
 
 		$link = sql_connect();
+		$start= station_position($link, $_POST['start']);
+		$goal = station_position($link, $_POST['goal']);
+		echo "<p>".$start[0]." ".$start[1]."</p>";
+		echo "<p>".$goal[0]." ".$goal[1]."</p>";
 
-		$query_start = "SELECT station_name, lon, lat FROM m_station WHERE station_name like '".$_POST['start']."'limit 1;";
-		$query_goal = "SELECT station_name, lon, lat FROM m_station WHERE station_name like '".$_POST['goal']."'limit 1;";
-		$result_start = sql_select($link, $query_start);
-		$result_goal  = sql_select($link, $query_goal);
-		if($result_start->num_rows<1 || $result_goal->num_rows<1) {
-			echo "<p>駅が見つかりませんでした</p>";
-			return;
-		}
-		//echo "<p>".count($result)."</p>";
-		//var_dump($result_start);
-		//echo "<p>".$result->num_rows."</p>";
-		$start_row = $result_start->fetch_assoc();
-		$goal_row  = $result_goal->fetch_assoc();
-		$start_lon = $start_row['lon']; 
-		$start_lat = $start_row['lat'];
-		$goal_lon  = $goal_row['lon'];
-		$goal_lat  = $goal_row['lat'];
-		mysqli_free_result($result_start);
-		mysqli_free_result($result_goal);
-		echo "<p>hogege:".$start_lon." ".$start_lat."</p>";
-		echo "<p>hogege:".$goal_lon." ".$goal_lat."</p>";
-
-		//foreach($result_start as $row) {
-		//	$start_lon = $row['lon'];
-		//	$start_lat = $row['lat'];
-		//	echo"<p>".$row['station_name']." ".$row['lon']." ".$row['lat']."</p>";
+		//$query_start 
+		//= "SELECT station_name, lon, lat FROM m_station WHERE station_name like '".$_POST['start']."'limit 1;";
+		//$query_goal 
+		//= "SELECT station_name, lon, lat FROM m_station WHERE station_name like '".$_POST['goal']."'limit 1;";
+		//$result_start = sql_select($link, $query_start);
+		//$result_goal  = sql_select($link, $query_goal);
+		//if($result_start->num_rows<1 || $result_goal->num_rows<1) {
+		//	echo "<p>駅が見つかりませんでした</p>";
+		//	return;
 		//}
-		//echo "<p>".$start_lon." ".$start_lat."</p>";
-		$jsstart_lon = json_encode($start_lon);
-		$jsstart_lat = json_encode($start_lat);
-		$jsgoal_lon = json_encode($goal_lon);
-		$jsgoal_lat = json_encode($goal_lat);
+		//$start_row = $result_start->fetch_assoc();
+		//$goal_row  = $result_goal->fetch_assoc();
+		//$start_lon = $start_row['lon']; 
+		//$start_lat = $start_row['lat'];
+		//$goal_lon  = $goal_row['lon'];
+		//$goal_lat  = $goal_row['lat'];
+		//mysqli_free_result($result_start);
+		//mysqli_free_result($result_goal);
+		//echo "<p>start:".$start_lon." ".$start_lat."</p>";
+		//echo "<p>goal :".$goal_lon." ".$goal_lat."</p>";
+		//$jsstart_lon = json_encode($start_lon);
+		//$jsstart_lat = json_encode($start_lat);
+		//$jsgoal_lon = json_encode($goal_lon);
+		//$jsgoal_lat = json_encode($goal_lat);
+		$jsstart_lon = json_encode($start[0]);
+		$jsstart_lat = json_encode($start[1]);
+		$jsgoal_lon = json_encode($goal[0]);
+		$jsgoal_lat = json_encode($goal[1]);
 
 		sql_close($link);
 	}
