@@ -44,6 +44,11 @@
 		$dist = station_distance($link, $_POST['start'], $_POST['goal']);
 		echo "<p>".$dist."</p>";
 
+		$result = station_neighbors($link, $_POST['start']);
+		foreach($result as $row) {
+			echo "<p>result: ".$row['station_name']." ".$row['line_cd']."</p>";
+		}
+
 		sql_close($link);
 	}
 ?>
