@@ -109,6 +109,16 @@
 		$succ = $tree->successor($foo);
 		$succ[0]->debug();
 		$succ[1]->debug();
+
+		echo "find";
+		$abc = $tree->find('駒込', 13);
+		$abc->debug();
+		if(is_null($abc)){
+			echo "<p>null</p>";
+		} else {
+			echo "<p>notnull</p>";
+		}
+
 		echo "del:";
 		//$tree->root->debug();
 		//$tree->del($tree->root, $hog, $tree->root, True);
