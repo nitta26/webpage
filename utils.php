@@ -137,44 +137,71 @@
 		}
 
 		function successor($node) {
+			$pre = $node;
 			$n = $node->right;
 			while(!is_null($n->left)) {
+				$pre = $n;
 				$n = $n->left;
 			}
-			return $n;
+			return array($n,$pre);
 		}
 
+		// https://qiita.com/maebaru/items/a47c2ef675a76e8816ab
 		function del($n, $node, $pre, $right) {
 			if(is_null($n)) {
 				echo "first";
 				return;
 			}
 			if($node->fval < $n->fval) {
-				//$n->left = $this->del($n->left, $node, $n, False);
 				$this->del($n->left, $node, $n, False);
 				return;
 			} else if($node->fval > $n->fval) {
-				//$n->right = $this->del($n->right, $node, $n, True);
 				$this->del($n->right, $node, $n, True);
 				return;
 			}
 			else {
 				if(is_null($n->left) && is_null($n->right)) {
-					//echo "match";
-					//$this->root->debug();
-					//$pre->debug();
-					//$n->debug();
 					if($right) { $pre->right=NULL;}
-					//if($right) { echo "right:";}
 					else { $pre->left=NULL;}
-					//else { echo "left:";}
-					//$this->root->debug();
-				} 
+				} else if(is_null($n->left)) {
+					if($right) { $pre->right = $n->right;}
+					else { $pre->left = $n->right;}
+				} else if(is_null($n->right))  {
+					if($right) { $pre->right = $n->left;}
+					else { $pre->left = $n->left;}
+				} else {
+					$succ = $this->successor($n);
+					$tmp = $succ[0]->right;
+					//if($right) { 
+						//echo "right: ";
+						//$pre->debug();
+						//$succ[0]->debug();
+						//$succ[1]->debug();
+						if($right) { 
+							$pre->right = $succ[0];
+						} else {
+							$pre->left = $succ[0];
+						} 
+						//$pre->debug();
+						$succ[0]->left = $n->left;
+						if($n->right->sname != $succ[0]->sname) { 
+							$succ[0]->right = $n->right;
+						}
+						$succ[1]->left = $n;
+						$n->right = $tmp;
+						$n->left = NULL;
+						//$n->debug();
+						$this->del($succ[1], $n, $succ[1], False);
+					//} 
+				}  
 			}
-			//echo "final";
-			//$this->root->debug();
-			//$pre->debug();
-			//$n->debug();
+		}
+
+		function del_node($node) {
+			$this->del($this->root, $node, $this->root, True);
+			$node->right = NULL;
+			$node->left = NULL;
+			$node->open = False;
 		}
 
 		// arg is root node and recurrently search

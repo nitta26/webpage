@@ -69,6 +69,16 @@
 		$ff->fval = 15;
 		$hh = new node('千川');
 		$hh->fval = 70;
+		$kk = new node('日暮里');
+		$kk->fval = 60;
+		$aa = new node('東京');
+		$aa->fval = 80;
+		$bb = new node('西日暮里');
+		$bb->fval = 65;
+		$cc = new node('目白');
+		$cc->fval = 12;
+		$dd = new node('駒込');
+		$dd->fval = 13;
 
 		$tree = new binary_tree();
 		echo "<p>".is_null($tree->root)."</p>";
@@ -79,29 +89,49 @@
 		$tree->insert($fog);
 		$tree->insert($ff);
 		$tree->insert($hh);
+		$tree->insert($kk);
+		$tree->insert($aa);
+		$tree->insert($bb);
+		$tree->insert($cc);
+		$tree->insert($dd);
 		echo "root";
 		$tree->root->debug();
 		echo "left";
 		$tree->root->left->debug();
 		echo "right";
 		$tree->root->right->debug();
-		echo "right left";
-		$tree->root->right->left->debug();
+		//echo "right left";
+		//$tree->root->right->left->debug();
 		echo "min";
 		$tree->tree_min($tree->root)->debug();
 		echo "successeor:";
-		$tree->successor($hoge)->debug();
+		$succ = $tree->successor($foo);
+		$succ[0]->debug();
+		$succ[1]->debug();
 		echo "del:";
 		//$tree->root->debug();
-		$tree->del($tree->root, $hog, $tree->root, True);
-		$foo->debug();
-		$tree->root->debug();
+		//$tree->del($tree->root, $hog, $tree->root, True);
+		//$foo->debug();
+		//$tree->root->debug();
 		//$hog->debug();
 		//$tree->del($tree->root, $hh, $tree->root, True);
 		//$foo->debug();
-		$tree->del($tree->root, $ff, $tree->root, True);
 		//$tree->del($tree->root, $ff, $tree->root, True);
-		$foh->debug();
+		//$tree->del($tree->root, $ff, $tree->root, True);
+		//$foh->debug();
+		//$tree->del($tree->root, $foo, $tree->root, True);
+		$tree->del_node($foo);
+		$tree->root->debug();
+		$hh->debug();
+		$kk->debug();
+		$foo->debug();
+		$cc->debug();
+
+		echo "del2";
+		$tree->del_node($foh);
+		$tree->root->debug();
+		$ff->debug();
+		$cc->debug();
 
 		echo "<p>-- search --</p>";
 		astar($link, $_POST['start'], $_POST['goal']);
@@ -110,7 +140,7 @@
 	}
 ?>
 
-<script src="//maps.googleapis.com/maps/api/js?libraries=places&key={key}"></script>
+<script src="//maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCGLc_VSFqDmSyR0DWVcdq5aAz-sL_XCSM"></script>
 <script src="utils.js"></script>
 <script>
 var start_lon = JSON.parse('<?php echo $jsstart_lon; ?>');
