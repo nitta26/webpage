@@ -69,5 +69,142 @@
 		return $result;
 	}
 
+	class node {
+		public $sname;
+		public $linecd;
+		public $fval;
+		public $left;
+		public $right;
+		public $parent;
+		public $open;
+		
+		//function __construct($sname, $linecd) {
+		function __construct($sname) {
+			$this->sname = $sname;
+			//$this->linecd= $linecd;
+			$this->linecd= NULL;
+			$this->fval = 0;
+			$this->left = NULL;// node
+			$this->right= NULL;// node
+			$this->parent = NULL;// node
+			$open = false;
+		}
+		
+		function debug() {
+			echo "<p>debug: ".$this->sname." ".$this->linecd." ".$this->fval;
+			if(is_null($this->left)) { echo " left is null ";}
+			else { echo " left:".$this->left->sname;}
+			if(is_null($this->right)) { echo " right is null ";}
+			else { echo " right:".$this->right->sname;}
+			if($this->open) { echo " open ";}
+			else { echo " close";}
+			if(is_null($this->parent)) { echo " parent is null ";}
+			else { echo " parent:".$this->parent->sname;}
+			echo "</p>";
+		}
+	}
+
+	class binary_tree {
+		public $root;
+		
+		function __construct() {
+			$this->root = NULL;
+		}
+			
+		function insert($node) {
+			if(is_null($this->root)) {
+				$this->root = $node;
+			} else {
+				$tree_node = $this->root;
+				$flag = True;
+				while($flag) {
+					if($tree_node->fval > $node->fval)
+						if(is_null($tree_node->left)) {
+							$tree_node->left = $node;
+							$flag = False;
+						} else {
+							$tree_node = $tree_node->left;
+						} else {
+						if(is_null($tree_node->right)) {
+							$tree_node->right = $node;
+							$flag = False;
+						} else {
+							$tree_node = $tree_node->right;
+						}
+					}
+				}
+			}
+		}
+
+		function successor($node) {
+			$n = $node->right;
+			while(!is_null($n->left)) {
+				$n = $n->left;
+			}
+			return $n;
+		}
+
+		function del($n, $node, $pre, $right) {
+			if(is_null($n)) {
+				echo "first";
+				return;
+			}
+			if($node->fval < $n->fval) {
+				//$n->left = $this->del($n->left, $node, $n, False);
+				$this->del($n->left, $node, $n, False);
+				return;
+			} else if($node->fval > $n->fval) {
+				//$n->right = $this->del($n->right, $node, $n, True);
+				$this->del($n->right, $node, $n, True);
+				return;
+			}
+			else {
+				if(is_null($n->left) && is_null($n->right)) {
+					//echo "match";
+					//$this->root->debug();
+					//$pre->debug();
+					//$n->debug();
+					if($right) { $pre->right=NULL;}
+					//if($right) { echo "right:";}
+					else { $pre->left=NULL;}
+					//else { echo "left:";}
+					//$this->root->debug();
+				} 
+			}
+			//echo "final";
+			//$this->root->debug();
+			//$pre->debug();
+			//$n->debug();
+		}
+
+		// arg is root node and recurrently search
+		function tree_min($node) {
+			if(is_null($node->left)) {
+				return $node;
+			} else {
+				return $this->tree_min($node->left);
+			}
+		}
+	}
+
+	function h($link, $s1, $s2) {
+		return station_distance($link, $s1, $s2);
+	}
+
+	function astar($link, $s, $g) {
+		// 1.
+		$snode = new node($s);
+		// 2.
+		$gnode = new node($g);
+
+		// 3.
+		$snode->open = True;
+		$snode->fval = h($link, $snode->sname, $gnode->sname);
+		
+
+		$snode->debug();
+		$gnode->debug();
+	}
+
 ?>
 

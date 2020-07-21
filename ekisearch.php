@@ -14,6 +14,7 @@
 </style>
 </head>
 <body>
+<h1>路線検索</h1>
 
 <form action="ekisearch.php" method="post">
 <p>
@@ -43,11 +44,67 @@
 
 		$dist = station_distance($link, $_POST['start'], $_POST['goal']);
 		echo "<p>".$dist."</p>";
+		echo "<p>h: ".h($link, $_POST['start'], $_POST['goal'])."</p>";
 
 		$result = station_neighbors($link, $_POST['start']);
 		foreach($result as $row) {
 			echo "<p>result: ".$row['station_name']." ".$row['line_cd']."</p>";
 		}
+
+		$hoge = new node($row['station_name'], $row['line_cd']);
+		$hoge->fval = 20;
+		$hoge->debug();
+		$foo = new node('都庁前');
+		$foo->fval = 50;
+		$foo->debug();
+		$foh = new node('代々木');
+		$foh->fval = 10;
+		$foh->debug();
+		$hog = new node('西新宿');
+		$hog->fval = 30;
+		$hog->debug();
+		$fog = new node('南新宿');
+		$fog->fval = 5;
+		$ff = new node('高田馬場');
+		$ff->fval = 15;
+		$hh = new node('千川');
+		$hh->fval = 70;
+
+		$tree = new binary_tree();
+		echo "<p>".is_null($tree->root)."</p>";
+		$tree->insert($hoge);
+		$tree->insert($foo);
+		$tree->insert($foh);
+		$tree->insert($hog);
+		$tree->insert($fog);
+		$tree->insert($ff);
+		$tree->insert($hh);
+		echo "root";
+		$tree->root->debug();
+		echo "left";
+		$tree->root->left->debug();
+		echo "right";
+		$tree->root->right->debug();
+		echo "right left";
+		$tree->root->right->left->debug();
+		echo "min";
+		$tree->tree_min($tree->root)->debug();
+		echo "successeor:";
+		$tree->successor($hoge)->debug();
+		echo "del:";
+		//$tree->root->debug();
+		$tree->del($tree->root, $hog, $tree->root, True);
+		$foo->debug();
+		$tree->root->debug();
+		//$hog->debug();
+		//$tree->del($tree->root, $hh, $tree->root, True);
+		//$foo->debug();
+		$tree->del($tree->root, $ff, $tree->root, True);
+		//$tree->del($tree->root, $ff, $tree->root, True);
+		$foh->debug();
+
+		echo "<p>-- search --</p>";
+		astar($link, $_POST['start'], $_POST['goal']);
 
 		sql_close($link);
 	}
