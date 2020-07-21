@@ -104,6 +104,7 @@
 		//$tree->root->right->left->debug();
 		echo "min";
 		$tree->tree_min($tree->root)->debug();
+		$tree->tree_min_node()->debug();
 		echo "successeor:";
 		$succ = $tree->successor($foo);
 		$succ[0]->debug();
@@ -128,7 +129,7 @@
 		$cc->debug();
 
 		echo "del2";
-		$tree->del_node($foh);
+		$tree->del_node($hoge);
 		$tree->root->debug();
 		$ff->debug();
 		$cc->debug();
@@ -140,7 +141,7 @@
 	}
 ?>
 
-<script src="//maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCGLc_VSFqDmSyR0DWVcdq5aAz-sL_XCSM"></script>
+<script src="//maps.googleapis.com/maps/api/js?libraries=places&key={key}"></script>
 <script src="utils.js"></script>
 <script>
 var start_lon = JSON.parse('<?php echo $jsstart_lon; ?>');

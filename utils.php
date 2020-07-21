@@ -17,7 +17,7 @@
 
 	function sql_select($link, $query) {
 		if($result = mysqli_query($link, $query)) {
-			echo "<p>SELECTに成功しました</p>";
+			//echo "<p>SELECTに成功しました</p>";
 		} else {
 			echo "<p>SELECTに失敗しました</p>";
 		}
@@ -77,17 +77,19 @@
 		public $right;
 		public $parent;
 		public $open;
+		public $close;
 		
 		//function __construct($sname, $linecd) {
 		function __construct($sname) {
 			$this->sname = $sname;
 			//$this->linecd= $linecd;
 			$this->linecd= NULL;
-			$this->fval = 0;
+			$this->fval = INF;
 			$this->left = NULL;// node
 			$this->right= NULL;// node
 			$this->parent = NULL;// node
 			$open = false;
+			$close = false;
 		}
 		
 		function debug() {
@@ -118,7 +120,7 @@
 				$tree_node = $this->root;
 				$flag = True;
 				while($flag) {
-					if($tree_node->fval > $node->fval)
+					if($tree_node->fval >= $node->fval)
 						if(is_null($tree_node->left)) {
 							$tree_node->left = $node;
 							$flag = False;
@@ -172,27 +174,19 @@
 				} else {
 					$succ = $this->successor($n);
 					$tmp = $succ[0]->right;
-					//if($right) { 
-						//echo "right: ";
-						//$pre->debug();
-						//$succ[0]->debug();
-						//$succ[1]->debug();
-						if($right) { 
-							$pre->right = $succ[0];
-						} else {
-							$pre->left = $succ[0];
-						} 
-						//$pre->debug();
-						$succ[0]->left = $n->left;
-						if($n->right->sname != $succ[0]->sname) { 
-							$succ[0]->right = $n->right;
-						}
-						$succ[1]->left = $n;
-						$n->right = $tmp;
-						$n->left = NULL;
-						//$n->debug();
-						$this->del($succ[1], $n, $succ[1], False);
-					//} 
+					if($right) { 
+						$pre->right = $succ[0];
+					} else {
+						$pre->left = $succ[0];
+					} 
+					$succ[0]->left = $n->left;
+					if($n->right->sname != $succ[0]->sname) { 
+						$succ[0]->right = $n->right;
+					}
+					$succ[1]->left = $n;
+					$n->right = $tmp;
+					$n->left = NULL;
+					$this->del($succ[1], $n, $succ[1], True);
 				}  
 			}
 		}
@@ -212,6 +206,10 @@
 				return $this->tree_min($node->left);
 			}
 		}
+		
+		function tree_min_node() {
+			return $this->tree_min($this->root);
+		}
 	}
 
 	function h($link, $s1, $s2) {
@@ -224,13 +222,102 @@
 		// 2.
 		$gnode = new node($g);
 
+		$snode->debug();
+		$gnode->debug();
+
 		// 3.
 		$snode->open = True;
 		$snode->fval = h($link, $snode->sname, $gnode->sname);
-		
+		$tree = new binary_tree();
+		$root = new node('root');
+		$root->fval = INF;
+		$tree->insert($root);
+		$tree->insert($snode); 
+		//$tree->root->debug();
 
-		$snode->debug();
-		$gnode->debug();
+		$i = 0;
+		while($i < 10) {
+		// 4.
+		if(is_null($tree->root)) {
+			echo "<p>tree is empty</p>";
+		}
+		else {
+			//echo "<p>go to step 5</p>";
+		}
+
+		// 5.	
+		$n = $tree->tree_min_node();
+		echo "node:";
+		$n->debug();
+
+		// 6.
+		if($n->sname == $gnode->sname) {
+			echo "<p>search finish</p>";
+			$n->debug();
+			$r = $n->parent;
+			while(!is_null($r->parent)){
+				$r->debug();
+				$r = $r->parent;
+			}
+			return;
+		} else {
+			//echo "<p>continue search</p>";
+			$n->close = True;
+			$n->open = False;
+			$tree->del_node($n);
+			
+			// 7
+			$result = station_neighbors($link, $n->sname);
+			$neighbors = array();
+			foreach($result as $row) {
+				// 7.1
+				//echo"<p>neightbors: ".$row['station_name']." ".$row['line_cd']."</p>";
+				$m = new node($row['station_name']);
+				$m->linecd = $row['line_cd'];
+				$gn = $n->fval - h($link, $n->sname, $gnode->sname);
+				$cost = station_distance($link, $m->sname, $n->sname);
+				//$m->fval = $gn + $cost + h($link, $m->sname, $gnode->sname);
+				$fd = $gn + $cost + h($link, $m->sname, $gnode->sname);
+				//$m->debug();
+
+				//test
+				//$m->open = True;
+				//$m->fval = 5000;
+				//$tree->insert($m);
+				
+				// 7.2
+				if(!$m->open && !$m->close) {
+					$m->fval = $fd;
+					$m->parent = $n;
+					$m->open = True;
+					$tree->insert($m);
+				} else if($m->open && $fd < $m->fval) {
+					$tree->del_node($m);
+					$m->fval = $fd;
+					$m->parent = $n;
+					$tree->insert($m);
+				} else if($m->close && $fd < $m->fval) {
+					$m->fval = $fd;
+					$m->close = false;
+					$m->open = true;
+					$tree->insert($m);
+				}
+				//echo "neigh";
+				//$m->debug();
+			}
+		}
+		$i = $i+1;
+
+		//echo "debug".$i;
+		//$tree->root->debug();
+		//$snode->debug();
+		//$gnode->debug();
+		//if($gnode->fval > 10000000000) { echo "inf";}
+		//$tree->root->debug();
+		//$tree->root->left->debug();
+		//$tree->root->right->debug();
+		//$tree->root->right->right->debug();
+		}
 	}
 
 ?>
