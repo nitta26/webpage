@@ -1,5 +1,4 @@
 <?php
-	ini_set("memory limit", "200M");
 	function sql_connect() {
 		// mysql connection
 		$link = mysqli_connect('localhost', 'root', 'nitta', 'eki');
@@ -37,6 +36,17 @@
 		$lat = $row['lat'];
 		return array($lon, $lat);
 	}	
+
+	function line_name($link, $line_cd) {
+		$query = "SELECT line_name FROM m_line WHERE line_cd=".$line_cd.";";
+		$result = sql_select($link, $query);
+		if($result->num_rows<1) {
+			echo "<p>見つかりませんでした</p>";
+			return NULL;
+		}
+		$row = $result->fetch_assoc();
+		return $row['line_name'];
+	}
 
 	function station_distance($link, $station_name1, $station_name2) {
 		// https://qiita.com/chiyoyo/items/b10bd3864f3ce5c56291
@@ -83,7 +93,6 @@
 		//function __construct($sname, $linecd) {
 		function __construct($sname) {
 			$this->sname = $sname;
-			//$this->linecd= $linecd;
 			$this->linecd= NULL;
 			$this->fval = INF;
 			$this->left = NULL;// node
@@ -217,14 +226,11 @@
 		function find($s, $val) {
 			$n = $this->root;
 			$i = 0;
-			while($i < 100) {
-				//echo "<p>".$s." ".$n->sname." ".$val." ".$n->fval."</p>";
-				//$n->debug();
+			while($i < 500) {
 				if(is_null($n)) {
 					echo "NULL";
 					return NULL;
 				} else if($n->fval == $val && strcmp($n->sname,$s)==0) {
-					//echo "<p>findddd</p>";
 					return $n;
 				} else if($n->fval < $val) {
 					$n = $n->right;
@@ -234,32 +240,6 @@
 				$i = $i+1;
 			}
 		}
-/**	
-		function find($s, $val, $n) {
-			echo "<p>ss</p>";
-			//return $n;
-			$n->debug();
-			//if(is_null($n)) {
-			//	echo "<p>nulll</p>";
-			//	return;
-			//}
-			if($n->fval < $val) {
-				$this->find($s, $val, $n->right);
-			} else if($n->fval > $val) {
-				$this->find($s, $val, $n->left);
-				return $n;
-			} else {
-				echo "<p>finddd</p>";
-				//return "foo";
-				$n->debug();
-				//echo "<p>finddd</p>";
-				//$n->debug();
-				$a = $n;
-				$a->debug();
-				$a = 10;
-				//return $a;
-			}
-		}**/
 	}
 
 	function h($link, $s1, $s2) {
@@ -287,12 +267,9 @@
 		$tree->insert($root);
 		$tree->insert($snode); 
 		$open = $open+array($snode->sname => $snode->fval);
-		var_dump($open);
-		//$tree->root->debug();
 
 		$i = 0;
-		while($i < 100) {
-		echo "<p>-----------".$i."</p>";
+		while($i < 500) {
 		// 4.
 		if(is_null($tree->root)) {
 			echo "<p>tree is empty</p>";
@@ -303,17 +280,17 @@
 
 		// 5.	
 		$n = $tree->tree_min_node();
-		echo "node:";
-		$n->debug();
-		//var_dump($open);
 
 		// 6.
 		if($n->sname == $gnode->sname) {
 			echo "<p>search finish</p>";
+			echo "<p>".$i."</p>";
 			$n->debug();
+			echo "<p>".line_name($link, $n->linecd)."</p>";
 			$r = $n->parent;
 			while(!is_null($r->parent)){
 				$r->debug();
+				echo "<p>".line_name($link, $r->linecd)."</p>";
 				$r = $r->parent;
 			}
 			return;
@@ -323,38 +300,24 @@
 			$close = $close + array($n->sname => $n->fval);
 			$n->open = False;
 			unset($open[$n->sname]);
-			//var_dump($open);
 			$tree->del_node($n);
 			
 			// 7
 			$result = station_neighbors($link, $n->sname);
-			//$neighbors = array();
 			foreach($result as $row) {
 				// 7.1
-				//echo"<p>neightbors: ".$row['station_name']." ".$row['line_cd']."</p>";
 				$res = array_key_exists($row['station_name'], $open);
 				if($res) {
-					//echo "<p>ari</p>";
-					//var_dump($open);
 					$val = $open[$row['station_name']];
-					//echo "<p>".$row['station_name']." ".$val."</p>";
 					$m = $tree->find($row['station_name'], $val);
 				} else {
-					//echo "<p>nasi</p>";
 					$m = new node($row['station_name']);
 					$m->linecd = $row['line_cd'];
 				}
-					$gn = $n->fval - h($link, $n->sname, $gnode->sname);
-					$cost = station_distance($link, $m->sname, $n->sname);
-					//$m->fval = $gn + $cost + h($link, $m->sname, $gnode->sname);
-					$fd = $gn + $cost + h($link, $m->sname, $gnode->sname);
-					//$m->debug();
+				$gn = $n->fval - h($link, $n->sname, $gnode->sname);
+				$cost = station_distance($link, $m->sname, $n->sname);
+				$fd = $gn + $cost + h($link, $m->sname, $gnode->sname);
 
-				//test
-				//$m->open = True;
-				//$m->fval = 5000;
-				//$tree->insert($m);
-				
 				// 7.2
 				if(!$m->open && !$m->close) {
 					$m->fval = $fd;
@@ -362,20 +325,14 @@
 					$m->open = True;
 					$tree->insert($m);
 					$open = $open+array($m->sname => $m->fval);
-					//echo "7.2.1";
-					//$m->debug();
 				} else if($m->open && $fd < $m->fval) {
-					//echo "<p>---7.2.2---</p>";
 					$tree->del_node($m);
-					//echo "<p>".var_dump($open)."</p>";
 					unset($open[$m->sname]);
 					$m->fval = $fd;
 					$m->parent = $n;
 					$m->open = True;
 					$tree->insert($m);
 					$open = $open+array($m->sname => $m->fval);
-					//echo "<p>".var_dump($open)."</p>";
-					//$m->debug();
 				} else if($m->close && $fd < $m->fval) {
 					$m->fval = $fd;
 					$m->close = false;
@@ -383,25 +340,12 @@
 					$m->open = true;
 					$tree->insert($m);
 					$open = $open + array($m->sname => $m->fval);
-					//echo "7.2.3";
-					//$m->debug();
 				}
-				//echo "neigh";
-				//$m->debug();
 			}
 		}
 		$i = $i+1;
-
-		//echo "debug".$i;
-		//$tree->root->debug();
-		//$snode->debug();
-		//$gnode->debug();
-		//if($gnode->fval > 10000000000) { echo "inf";}
-		//$tree->root->debug();
-		//$tree->root->left->debug();
-		//$tree->root->right->debug();
-		//$tree->root->right->right->debug();
 		}
+		echo "<p>".$i."</p>";
 	}
 
 ?>
