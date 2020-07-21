@@ -2,6 +2,7 @@
 	function sql_connect() {
 		// mysql connection
 		$link = mysqli_connect('localhost', 'root', 'nitta', 'eki');
+		mysqli_set_charset($link, 'utf8');
 		if (mysqli_connect_errno()) {
 			die("データベースに接続できません:" . mysqli_connect_error() . "\n");
 		} else {
