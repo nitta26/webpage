@@ -30,7 +30,8 @@
 		$result = sql_select($link, $query);
 		if($result->num_rows<1) {
 			echo "<p>駅が見つかりませんでした</p>";
-			return array(0,0);
+			//return array(0,0);
+			return NULL;
 		}
 		$row = $result->fetch_assoc();
 		$lon = $row['lon'];

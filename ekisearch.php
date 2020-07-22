@@ -35,6 +35,8 @@
 		$goal = station_position($link, $_POST['goal']);
 		//echo "<p>".$start[0]." ".$start[1]."</p>";
 		//echo "<p>".$goal[0]." ".$goal[1]."</p>";
+
+		if(!is_null($start) && !is_null($goal)){
 		$jsstart_lon = json_encode($start[0]);
 		$jsstart_lat = json_encode($start[1]);
 		$jsgoal_lon = json_encode($goal[0]);
@@ -55,6 +57,7 @@
 		}
 		$jspath = json_encode($path);
 		$jsnum = json_encode(count($path));
+		}
 
 		sql_close($link);
 	}
