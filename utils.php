@@ -256,9 +256,6 @@
 		// 2.
 		$gnode = new node($g);
 
-		$snode->debug();
-		$gnode->debug();
-
 		// 3.
 		$snode->open = True;
 		$snode->fval = h($link, $snode->sname, $gnode->sname);
@@ -286,15 +283,36 @@
 		if($n->sname == $gnode->sname) {
 			echo "<p>search finish</p>";
 			echo "<p>".$i."</p>";
-			$n->debug();
-			echo "<p>".line_name($link, $n->linecd)."</p>";
+			$path = array();
+			$p = station_position($link, $n->sname);
+			$l = line_name($link, $n->linecd);
+			array_push($p, $l, $n->sname);
+			//array_push($path, $p);
+			array_unshift($path, $p);
+
+			//$n->debug();
+			//echo "<p>".line_name($link, $n->linecd)."</p>";
 			$r = $n->parent;
+
 			while(!is_null($r->parent)){
-				$r->debug();
-				echo "<p>".line_name($link, $r->linecd)."</p>";
+				$p = station_position($link, $r->sname);
+				$l = line_name($link, $r->linecd);
+				array_push($p, $l, $r->sname);
+				//array_push($path, $p);
+				array_unshift($path, $p);
+
+				//$r->debug();
+				//echo "<p>".line_name($link, $r->linecd)."</p>";
 				$r = $r->parent;
 			}
-			return;
+			$p = station_position($link, $r->sname);
+			$l = NULL;
+			array_push($p, $l, $r->sname);
+			//array_push($path, $p);
+			array_unshift($path, $p);
+			//$r->debug();	
+
+			return $path;
 		} else {
 			//echo "<p>continue search</p>";
 			$n->close = True;
@@ -347,6 +365,7 @@
 		$i = $i+1;
 		}
 		echo "<p>".$i."</p>";
+		return NULL;
 	}
 
 ?>
